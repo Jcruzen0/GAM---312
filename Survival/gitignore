@@ -165,7 +165,7 @@ Temporary Items
 /Saved
 
 # Compiled source files for the engine to use
-/Intermediate
+*/Intermediate
 /Plugins/**/Intermediate
 
 # Cache files for the editor to use
