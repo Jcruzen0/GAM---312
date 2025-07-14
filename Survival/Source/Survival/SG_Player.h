@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
+#include "Resource_M.h"
 #include "SG_Player.generated.h"
 
 UCLASS()
@@ -20,7 +21,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -35,8 +36,65 @@ public:
 	UFUNCTION()
 	void MoveRight(float Value);
 
+	UFUNCTION()
+	void FindObject();
+
 	// Create a camera component
 	UPROPERTY(VisibleAnywhere)
-		UCameraComponent* PlayerCamComp;
+	UCameraComponent* PlayerCamComp;
+
+
+	// Player's current health value
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
+	float Health = 100.0f;
+
+	//Player's current hunger value
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
+	float Hunger = 100.0f;
+
+	// Player's current stamina value
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
+	float Stamina = 100.0f;
 	
+	// Amount of wood the player currently holds
+	UPROPERTY(EditAnywhere, Category = "Resources")
+	int Wood;
+
+	// Amount of stone the player currently holds
+	UPROPERTY(EditAnywhere, Category = "Resources")
+	int Stone;
+
+	// Amount of berries the player currently holds
+	UPROPERTY(EditAnywhere, Category = "Resources")
+	int Berry;
+
+	// Array storing resource amounts
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Resources")
+	TArray<int> ResourcesArray;
+
+	// Array storing resource names corresponding to ResourcesArray
+	UPROPERTY(EditAnywhere, Category = "Resources")
+	TArray<FString> ResourcesNameArray;
+
+	// Sets the player's health to a new value
+	UFUNCTION(BlueprintCallable)
+	void SetHealth(float Value);
+
+	// Sets the player's hunger to a new value
+	UFUNCTION(BlueprintCallable)
+	void SetHunger(float Value);
+
+	// Sets the player's stamina to a new value
+	UFUNCTION(BlueprintCallable)
+	void SetStamina(float Value);
+
+	// Decreases player stats over time
+	UFUNCTION()
+	void DecreaseStats();
+
+	// Adds resource value to the player's inventory based on resource type
+	UFUNCTION()
+	void GiveResource(float Value, FString ResourceType);
+
+
 };
