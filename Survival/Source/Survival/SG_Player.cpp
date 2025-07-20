@@ -15,6 +15,7 @@ ASG_Player::ASG_Player()
 	PlayerCamComp->SetupAttachment(GetMesh(), "head");
 	PlayerCamComp->bUsePawnControlRotation = true;
 
+	BuildingArray.SetNum(3);
 	ResourcesArray.SetNum(3);
 	ResourcesNameArray.Add(TEXT("Wood"));
 	ResourcesNameArray.Add(TEXT("Stone"));
@@ -35,6 +36,17 @@ void ASG_Player::BeginPlay()
 void ASG_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bIsBuilding)
+	{
+		if (BuildingPart)
+		{
+			FVector StartLocation = PlayerCamComp->GetComponentLocation();
+			FVector Direction = PlayerCamComp->GetForwardVector() * 400.0;
+			FVector EndLocation = StartLocation + Direction;
+			BuildingPart->SetActorLocation(EndLocation);
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -49,6 +61,7 @@ void ASG_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAxis("Turn", this, &ASG_Player::AddControllerYawInput);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ASG_Player::FindObject);
+	PlayerInputComponent->BindAction("RotPart", IE_Pressed, this, &ASG_Player::RotateBuilding);
 }
 
 
@@ -83,32 +96,41 @@ void ASG_Player::FindObject()
 	QueryParams.bTraceComplex = true;
 	QueryParams.bReturnFaceIndex = true;
 
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams))
+	if (!bIsBuilding)
 	{
-		AResource_M* HitResource = Cast<AResource_M>(HitResult.GetActor());
-
-		if (HitResource)
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams))
 		{
-			FString HitName = HitResource->ResourceName;
-			int ResourceValue = HitResource->ResourceAmount;
-
-			// Reduce resource's total amount
-			HitResource->TotalResource -= ResourceValue;
-
-			if (HitResource->TotalResource > ResourceValue)
+			AResource_M* HitResource = Cast<AResource_M>(HitResult.GetActor());
+			if (Stamina > 5.0f)
 			{
-				GiveResource(ResourceValue, HitName);
+				if (HitResource)
+				{
+					FString HitName = HitResource->ResourceName;
+					int ResourceValue = HitResource->ResourceAmount;
 
-				check(GEngine != nullptr);
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Resource Collected"));
-			}
-			else
-			{
-				HitResource->Destroy();
-				check(GEngine != nullptr);
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Resource Depleted"));
+					// Reduce resource's total amount
+					HitResource->TotalResource -= ResourceValue;
+
+					if (HitResource->TotalResource > ResourceValue)
+					{
+						GiveResource(ResourceValue, HitName);
+
+						check(GEngine != nullptr);
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Resource Collected"));
+					}
+					else
+					{
+						HitResource->Destroy();
+						check(GEngine != nullptr);
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Resource Depleted"));
+					}
+				}
 			}
 		}
+	}
+	else
+	{
+		bIsBuilding = false;
 	}
 }
 
@@ -137,6 +159,9 @@ void ASG_Player::SetStamina(float Value)
 	{
 		Stamina += Value;
 	}
+
+		if (Stamina < 0)
+		Stamina = 0;
 }
 
 // Decreases hunger over time; if hunger reaches zero, reduces health
@@ -147,7 +172,7 @@ void ASG_Player::DecreaseStats()
 		SetHunger(-1.0f);
 	}
 
-	SetStamina(10.0f);
+	SetStamina(-5.0f);
 
 	if (Hunger <= 0)
 	{
@@ -169,5 +194,68 @@ void ASG_Player::GiveResource(float Value, FString ResourceType)
 	else if (ResourceType == TEXT("Berry"))
 	{
 		ResourcesArray[2] += Value;
+	}
+	
+}
+
+void ASG_Player::UpdateResources(float woodAmount, float stoneAmount, FString buildingObject)
+{
+	if (woodAmount <= ResourcesArray[0])
+	{
+		if (stoneAmount <= ResourcesArray[1])
+		{
+			ResourcesArray[0] -= woodAmount;
+			ResourcesArray[1] -= stoneAmount;
+
+			if (buildingObject == TEXT("Wall"))
+			{
+				BuildingArray[0] += 1;
+			}
+
+			if (buildingObject == TEXT("Floor"))
+			{
+				BuildingArray[1] += 1;
+			}
+
+			if (buildingObject == TEXT("Ceiling"))
+			{
+				BuildingArray[2] += 1;
+			}
+		}
+	}
+}
+
+void ASG_Player::SpawnBuilding(int buildingID, bool& isSuccess)
+{
+	if (!bIsBuilding)
+	{
+		if (BuildingArray[buildingID] >= 1)
+		{
+			bIsBuilding = true;
+			FActorSpawnParameters SpawnParams;
+			FVector StartLocation = PlayerCamComp->GetComponentLocation();
+			FVector Direction = PlayerCamComp->GetForwardVector() * 400.0;
+			FVector EndLocation = StartLocation + Direction;
+			FRotator myRot(0,0,0);
+
+			BuildingArray[buildingID] -= 1;
+
+			BuildingPart = GetWorld()->SpawnActor<ASG_BuildingPart>(BuildingPartClass, EndLocation, myRot, SpawnParams);
+
+			isSuccess = true;
+
+		}
+		else
+		{
+			isSuccess = false;
+		}
+	}
+}
+
+void ASG_Player::RotateBuilding()
+{
+	if (bIsBuilding)
+	{
+		BuildingPart->AddActorWorldRotation(FRotator(0,90,0));
 	}
 }

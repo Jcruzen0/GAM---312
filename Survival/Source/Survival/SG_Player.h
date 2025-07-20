@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
 #include "Resource_M.h"
+#include "SG_BuildingPart.h"
 #include "SG_Player.generated.h"
 
 UCLASS()
@@ -76,6 +77,18 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Resources")
 	TArray<FString> ResourcesNameArray;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building Supplies")
+	TArray<int> BuildingArray;
+
+	UPROPERTY()
+	bool bIsBuilding;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<ASG_BuildingPart> BuildingPartClass;
+	
+	UPROPERTY()
+	ASG_BuildingPart* BuildingPart;
+	
 	// Sets the player's health to a new value
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(float Value);
@@ -96,5 +109,13 @@ public:
 	UFUNCTION()
 	void GiveResource(float Value, FString ResourceType);
 
+	UFUNCTION(BlueprintCallable)
+	void UpdateResources(float woodAmount, float stoneAmount, FString buildingObject);
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnBuilding(int buildingID, bool& isSuccess);
+
+	UFUNCTION()
+	void RotateBuilding();
+	
 };
