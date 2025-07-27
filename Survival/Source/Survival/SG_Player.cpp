@@ -37,6 +37,8 @@ void ASG_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	PlayerHUD->UpdateBars(Health, Hunger, Stamina);
+
 	if (bIsBuilding)
 	{
 		if (BuildingPart)
@@ -195,6 +197,8 @@ void ASG_Player::GiveResource(float Value, FString ResourceType)
 	{
 		ResourcesArray[2] += Value;
 	}
+
+	SetStamina(-5.0f);
 	
 }
 

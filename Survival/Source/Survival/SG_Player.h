@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Resource_M.h"
 #include "SG_BuildingPart.h"
+#include "SG_PlayerHUD.h"
 #include "SG_Player.generated.h"
 
 UCLASS()
@@ -56,7 +57,7 @@ public:
 	// Player's current stamina value
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
 	float Stamina = 100.0f;
-	
+
 	// Amount of wood the player currently holds
 	UPROPERTY(EditAnywhere, Category = "Resources")
 	int Wood;
@@ -85,10 +86,13 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<ASG_BuildingPart> BuildingPartClass;
-	
+
 	UPROPERTY()
 	ASG_BuildingPart* BuildingPart;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USG_PlayerHUD* PlayerHUD;
+
 	// Sets the player's health to a new value
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(float Value);
@@ -117,5 +121,4 @@ public:
 
 	UFUNCTION()
 	void RotateBuilding();
-	
 };
