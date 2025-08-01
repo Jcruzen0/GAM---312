@@ -96,8 +96,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USG_ObjectivesUI* ObjectiveUI;
+	
 	UPROPERTY()
 	float BuiltObjectives;
+	
 	UPROPERTY()
 	float MaterialsCollected;
 
