@@ -30,6 +30,14 @@ void ASG_Player::BeginPlay()
 
 	FTimerHandle StatsTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(StatsTimerHandle, this, &ASG_Player::DecreaseStats, 2.0f, true);
+
+	if (ObjectiveUI)
+	{
+		// Initialize our stats to 0
+		ObjectiveUI->UpdateBuildObjective(0.0f);
+		ObjectiveUI->UpdateMatObjective(0.0f);
+	}
+
 }
 
 // Called every frame
@@ -117,6 +125,10 @@ void ASG_Player::FindObject()
 					{
 						GiveResource(ResourceValue, HitName);
 
+						// Updated Materials collected objective
+						MaterialsCollected += ResourceValue;
+						ObjectiveUI->UpdateMatObjective(MaterialsCollected);
+
 						check(GEngine != nullptr);
 						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Resource Collected"));
 					}
@@ -133,6 +145,8 @@ void ASG_Player::FindObject()
 	else
 	{
 		bIsBuilding = false;
+		BuiltObjectives += 1.0f;
+		ObjectiveUI->UpdateBuildObjective(BuiltObjectives);
 	}
 }
 

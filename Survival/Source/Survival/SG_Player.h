@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
 #include "Resource_M.h"
+#include "SG_ObjectivesUI.h"
 #include "SG_BuildingPart.h"
 #include "SG_PlayerHUD.h"
 #include "SG_Player.generated.h"
@@ -92,6 +93,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USG_PlayerHUD* PlayerHUD;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USG_ObjectivesUI* ObjectiveUI;
+	UPROPERTY()
+	float BuiltObjectives;
+	UPROPERTY()
+	float MaterialsCollected;
 
 	// Sets the player's health to a new value
 	UFUNCTION(BlueprintCallable)
