@@ -212,7 +212,7 @@ void ASG_Player::GiveResource(float Value, FString ResourceType)
 		ResourcesArray[2] += Value;
 	}
 
-	SetStamina(-5.0f);
+	SetStamina(-1.0f);
 	
 }
 
