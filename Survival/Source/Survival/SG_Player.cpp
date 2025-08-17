@@ -253,6 +253,7 @@ void ASG_Player::SpawnBuilding(int buildingID, bool& isSuccess)
 			FActorSpawnParameters SpawnParams;
 			FVector StartLocation = PlayerCamComp->GetComponentLocation();
 			FVector Direction = PlayerCamComp->GetForwardVector() * 400.0;
+			// Use simple vector math to set the end position to spawn our object
 			FVector EndLocation = StartLocation + Direction;
 			FRotator myRot(0,0,0);
 
